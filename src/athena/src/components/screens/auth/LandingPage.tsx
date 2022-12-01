@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../elements/Button';
+import { Input } from '../../elements/Input';
 import { AuthParamList } from '../../navigation/AuthNavigator';
 
 type LandingPageNav = NativeStackScreenProps<AuthParamList, 'LandingPage'>;
@@ -24,7 +25,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
         </View>
         {/* buttons */}
         <View style={{ width: '100%' }}>
-          <Button onPress={navToLogin}>Log In</Button>
+          {/* <Input placeholder="hello" /> */}
+          <Button disabled onPress={navToLogin}>
+            Log In
+          </Button>
         </View>
       </View>
     </SafeAreaView>

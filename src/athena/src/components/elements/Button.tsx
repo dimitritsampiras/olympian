@@ -1,21 +1,39 @@
 import * as Haptics from 'expo-haptics';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Pressable,
   Text,
-  Animated,
-  Easing,
   ViewStyle,
   PressableProps,
+  GestureResponderEvent,
+  ActivityIndicator,
 } from 'react-native';
+import Animated, {
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import theme from '../../theme';
+import { Spinner } from './Spinner';
 
 // constants
 const BUTTON_SCALE_TO = 0.99; // will effect the size of button
 const BUTTON_SCALE_IN_DURATION = 40; // will effect the speed of pressing in
 const BUTTON_SCALE_OUT_DURATION = 220; // will effect the speed of end animated
 const BUTTON_ELASTICITY = 2.2;
+
+const FULL_GRADIENT = [theme.blue[600], theme.blue[700]];
+const FLAT_GRADIENT = [theme.blue[100], theme.blue[200]];
+const GHOST_GRADIENT = [theme.gray[50], theme.blue[100]];
+
+type ButtonVariant =
+  | { full?: true; flat?: never; ghost?: never }
+  | { full?: never; flat?: true; ghost?: never }
+  | { full?: never; flat?: never; ghost?: true };
 
 interface ButtonProps extends PressableProps {
   // button can't be pressed
@@ -39,56 +57,71 @@ interface ButtonProps extends PressableProps {
  * @param ButtonProps properties of a button element
  * @returns JSX element
  */
-export const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps & ButtonVariant> = ({
+  full = true,
+  flat,
+  ghost,
   auto,
   style,
   disabled,
+  loading,
   animated = true,
   shadow = false,
   children,
+  onPress,
   ...props
 }) => {
-  // animated value for scale of the button
-  const animatedScale = useRef(new Animated.Value(1)).current;
-  // const animatedScale = useRef(new Animated.Value(1)).current;
+  // value for scale animation accessible by js & ui thread
+  const scale = useSharedValue(1);
+  const color = useSharedValue(1);
 
-  // handle press in of button
+  // handle the press in event
   const handleOnPressIn = () => {
+    // guard press in if button is disabled
+    if (disabled || loading) return;
     // haptic feedback
     Haptics.selectionAsync();
-    Animated.timing(animatedScale, {
-      toValue: BUTTON_SCALE_TO,
-      duration: BUTTON_SCALE_IN_DURATION,
-      easing: Easing.cubic,
-      useNativeDriver: true,
-    }).start();
+    scale.value = withSpring(0, { mass: 0.1, velocity: 10 });
+    color.value = withSpring(0, { mass: 0.1, velocity: 10 });
   };
 
-  // handle press out
-  const handleOnPressOut = () => {
-    Animated.timing(animatedScale, {
-      toValue: 1,
-      easing: Easing.elastic(BUTTON_ELASTICITY),
-      duration: BUTTON_SCALE_OUT_DURATION,
-      useNativeDriver: true,
-    }).start();
+  // handle the press out event
+  const handleOnPressOut: PressableProps['onPressOut'] = (event) => {
+    // guard press out if button is disabled
+    if (disabled || loading) return;
+    if (!onPress) return;
+    scale.value = withSpring(1, { mass: 0.1 });
+    color.value = withSpring(1, { mass: 0.1 });
+
+    // fire onPress property
+    onPress(event);
   };
+
+  const animatedScaleStyle = useAnimatedStyle(() => {
+    const gradient = FULL_GRADIENT;
+
+    return {
+      transform: [{ scale: interpolate(scale.value, [1, 0], [1, 0.98]) }],
+      backgroundColor:
+        disabled || loading
+          ? interpolateColor(color.value, [1, 0], [theme.blue[300], theme.blue[300]])
+          : interpolateColor(color.value, [1, 0], gradient),
+    };
+  });
 
   return (
     <Pressable
-      style={{ ...style, width: '100%' }}
+      style={[auto && styles.auto, { ...style }]}
       onPressIn={handleOnPressIn}
       onPressOut={handleOnPressOut}
       {...props}>
       {({ pressed }) => (
-        <Animated.View
-          style={[
-            styles.button,
-            shadow && !disabled && styles.buttonShadowBase,
-            animated && !disabled && { transform: [{ scale: animatedScale }] },
-            disabled && styles.disabled,
-          ]}>
-          <Text style={styles.buttonText}>{children}</Text>
+        <Animated.View style={[styles.button, animatedScaleStyle]}>
+          {!loading ? (
+            <Text style={[styles.text, full && styles.fullText]}>{children}</Text>
+          ) : (
+            <ActivityIndicator color={'white'} />
+          )}
         </Animated.View>
       )}
     </Pressable>
@@ -97,11 +130,43 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: theme.blue[600],
     height: 52,
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 18,
+  },
+  text: {
+    fontSize: 17,
+    fontWeight: '400',
+    letterSpacing: 0.1,
+  },
+  full: {
+    backgroundColor: theme.blue[600],
+  },
+  fullDisabled: {
+    backgroundColor: theme.blue[300],
+  },
+  fullText: {
+    color: '#fff',
+  },
+  ghost: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
+  ghostText: {
+    color: theme.blue[700],
+  },
+  flat: {
+    backgroundColor: theme.blue[100],
+  },
+  flatDisabled: {
+    backgroundColor: theme.blue[50],
+  },
+  flatText: {
+    color: theme.blue[700],
+  },
+  flatTextDisabled: {
+    color: theme.blue[300],
   },
   buttonShadowBase: {
     shadowColor: theme.blue[600],
@@ -109,13 +174,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowOffset: { height: 10, width: 0 },
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '400',
-    letterSpacing: 0.1,
-  },
   disabled: {
     backgroundColor: theme.gray[200],
+  },
+  auto: {
+    alignSelf: 'flex-start',
   },
 });

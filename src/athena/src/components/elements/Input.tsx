@@ -13,24 +13,27 @@ interface InputProps extends TextInputProps {
 
 export const Input: React.FC<InputProps> = ({ style, placeholder, ...props }) => {
   const animatedTranslationX = useRef(new Animated.Value(1)).current;
+  const animatedColor = useRef(new Animated.Value(0)).current;
 
   const handleOnPressIn = () => {
     Haptics.selectionAsync();
     Animated.timing(animatedTranslationX, {
       toValue: 14,
-      duration: 3,
+      duration: 10,
       easing: Easing.cubic,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   };
 
   const handleUnFocus = () => {
+    console.log('yes');
+
     Haptics.selectionAsync();
     Animated.timing(animatedTranslationX, {
       toValue: 1,
       duration: 3,
       easing: Easing.cubic,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   };
 
@@ -39,6 +42,7 @@ export const Input: React.FC<InputProps> = ({ style, placeholder, ...props }) =>
       style={{
         ...styles.container,
         ...style,
+        paddingLeft: animatedTranslationX,
       }}>
       <TextInput
         {...props}
@@ -47,7 +51,7 @@ export const Input: React.FC<InputProps> = ({ style, placeholder, ...props }) =>
         onPressIn={handleOnPressIn}
         onSubmitEditing={handleUnFocus}
         placeholder={placeholder}
-        placeholderTextColor={theme.gray[400]}
+
         // autoCapitalize={'none'}
       />
     </Animated.View>

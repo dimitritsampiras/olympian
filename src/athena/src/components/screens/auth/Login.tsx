@@ -31,7 +31,7 @@ export const Login: React.FC<LoginProps> = ({ navigation }) => {
   const { refetch } = useContext(UserContext);
 
   // graphql
-  const [login] = useLoginMutation();
+  const [login, { data }] = useLoginMutation();
 
   const onSubmit = async (values: LoginInput) => {
     const { data, errors } = await login({ variables: { input: values } });
@@ -70,6 +70,7 @@ export const Login: React.FC<LoginProps> = ({ navigation }) => {
                     secureTextEntry={true}
                     style={{ marginBottom: 54 }}
                   />
+
                   <Button onPress={handleSubmit as () => void}>Login</Button>
                 </>
               )}

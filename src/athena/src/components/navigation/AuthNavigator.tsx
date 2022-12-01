@@ -31,7 +31,15 @@ export const AuthNavigator: React.FC = () => {
     <AuthStack.Navigator>
       {isNil(user) ? (
         <>
-          <AuthStack.Screen name="LandingPage" component={LandingPage} />
+          <AuthStack.Screen
+            name="LandingPage"
+            component={LandingPage}
+            options={{
+              contentStyle: {
+                backgroundColor: theme.gray[50],
+              },
+            }}
+          />
           <AuthStack.Screen
             name="Login"
             component={Login}
