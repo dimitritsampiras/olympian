@@ -6,7 +6,7 @@ import { setContext } from '@apollo/client/link/context';
 import { GraphQLErrors, NetworkError } from '@apollo/client/errors';
 
 // @ts-ignore
-import { PORT } from '@env';
+import { PORT, IP_ADDRESS } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AUTH_TOKEN } from '../../lib/constants';
 
@@ -20,8 +20,8 @@ export const ApolloClientProvider: React.FC<ApolloClientProviderProps> = ({ chil
 };
 
 const createApolloClient = () => {
-  // const uri = `http://${IP_ADDRESS}:${PORT}/graphql`;
-  const uri = `http://${'localhost'}:${PORT}/graphql`;
+  const uri = `http://${IP_ADDRESS}:${PORT}/graphql`;
+  // const uri = `http://${'localhost'}:${PORT}/graphql`;
   // servers links
   const httpLink = createHttpLink({ uri });
 
