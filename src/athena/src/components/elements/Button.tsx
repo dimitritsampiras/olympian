@@ -1,12 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, { ReactNode } from 'react';
 import {
   StyleSheet,
   Pressable,
   Text,
   ViewStyle,
   PressableProps,
-  GestureResponderEvent,
   ActivityIndicator,
 } from 'react-native';
 import Animated, {
@@ -15,20 +14,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import theme from '../../theme';
-import { Spinner } from './Spinner';
-
-// constants
-const BUTTON_SCALE_TO = 0.99; // will effect the size of button
-const BUTTON_SCALE_IN_DURATION = 40; // will effect the speed of pressing in
-const BUTTON_SCALE_OUT_DURATION = 220; // will effect the speed of end animated
-const BUTTON_ELASTICITY = 2.2;
 
 const FULL_GRADIENT = [theme.blue[600], theme.blue[700]];
-const FLAT_GRADIENT = [theme.blue[100], theme.blue[200]];
-const GHOST_GRADIENT = [theme.gray[50], theme.blue[100]];
+// const FLAT_GRADIENT = [theme.blue[100], theme.blue[200]];
+// const GHOST_GRADIENT = [theme.gray[50], theme.blue[100]];
 
 type ButtonVariant =
   | { full?: true; flat?: never; ghost?: never }
