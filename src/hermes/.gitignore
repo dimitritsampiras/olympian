@@ -3,3 +3,5 @@ node_modules
 .env
 
 src/lib/types/nexus.ts
+
+dist

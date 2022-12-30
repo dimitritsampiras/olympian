@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 export const findUsername = async (prisma: PrismaClient, username: string) => {
   const user = await prisma.user.findFirst({ where: { username } });
 
-  console.log(user);
   return !!user;
 };
 

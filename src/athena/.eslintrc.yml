@@ -21,4 +21,6 @@ rules:
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     'react/jsx-key': 'warn',
+    'react/prop-types': ['error', { 'ignore': ['navigation'] }],
+    'react/no-unescaped-entities': 'warn'
   }

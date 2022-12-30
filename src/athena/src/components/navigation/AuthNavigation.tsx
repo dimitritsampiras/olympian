@@ -6,7 +6,7 @@ import { Login } from '../screens/auth/Login';
 import theme from '../../theme';
 import { RootStackNavigator } from './RootNavigator';
 import { useMeQuery } from '../../lib/graphql';
-import { SignUp } from '../screens/auth/SignUp';
+import { SignUp } from '../screens/auth/SignUp/SignUp';
 
 export type AuthParamList = {
   LandingPage: undefined;

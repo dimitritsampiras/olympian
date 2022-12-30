@@ -1,17 +1,9 @@
 import React, { useRef } from 'react';
-import {
-  Animated,
-  Easing,
-  NativeSyntheticEvent,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  TextInputChangeEventData,
-  TextInputProps,
-  TextStyle,
-} from 'react-native';
+import { View } from 'react-native';
+import { Animated, Easing, StyleSheet, TextInput, TextInputProps, TextStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import theme from '../../theme';
+import { HeroIcon } from '../../lib/types';
 
 interface InputProps extends TextInputProps {
   style?: TextStyle;
@@ -20,9 +12,17 @@ interface InputProps extends TextInputProps {
   color?: string;
   state?: string;
   error?: boolean;
+  Icon?: HeroIcon;
+  iconProps?: React.ComponentProps<HeroIcon>;
 }
 
-export const Input: React.FC<InputProps> = ({ style, placeholder, ...props }) => {
+export const Input: React.FC<InputProps> = ({
+  style,
+  placeholder,
+  Icon,
+  iconProps = { size: '18', fill: theme.gray[400] },
+  ...props
+}) => {
   const animatedTranslationX = useRef(new Animated.Value(1)).current;
 
   const handleOnPressIn = () => {
@@ -52,16 +52,19 @@ export const Input: React.FC<InputProps> = ({ style, placeholder, ...props }) =>
         ...style,
         ...(props.error ? styles.error : {}),
       }}>
-      <TextInput
-        {...props}
-        style={{ ...styles.input }}
-        selectionColor={theme.gray[900]}
-        onPressIn={handleOnPressIn}
-        onSubmitEditing={handleUnFocus}
-        placeholder={placeholder}
-        placeholderTextColor={theme.gray[400]}
-        // autoCapitalize={'none'}
-      />
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {Icon && <Icon size={iconProps.size} {...{ fill: iconProps.fill }} />}
+        <TextInput
+          {...props}
+          style={{ ...styles.input }}
+          selectionColor={theme.gray[900]}
+          onPressIn={handleOnPressIn}
+          onSubmitEditing={handleUnFocus}
+          placeholder={placeholder}
+          placeholderTextColor={theme.gray[400]}
+          // autoCapitalize={'none'}
+        />
+      </View>
     </Animated.View>
   );
 };
